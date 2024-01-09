@@ -4,6 +4,12 @@ import requests
 import snowflake.connector
 from urllib.error import URLError
 
+#create the repeatable code block (called a function)
+def get_fruityvice_data(this_fruit_choice):
+    fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + this_fruit_choice)
+    fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+    return fruityvice_normalized
+
 streamlit.title('My Mom\'s New Healthy Diner')
 streamlit.header('Breakfast Menu')
 streamlit.text('🥣 Omega 3 & Blueberry Oatmeal')
@@ -21,7 +27,6 @@ fruits_to_show = my_fruit_list.loc[fruits_selected]
 # Display the table on the page.
 streamlit.dataframe(fruits_to_show)
 
-
 # New Section to display Fruityide Advice
 streamlit.header("Fruityvice Fruit Advice!")
 try:
@@ -30,11 +35,8 @@ try:
     if not fruit_choice:
         streamlit.error('please select a fruit to get information')
     else:
-        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
-        # convert .json info to data frame
-        fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
-        # write your own comment - what does this do?
-        streamlit.dataframe(fruityvice_normalized)
+        back_from_function = get_fruityvice_data(fruit_choice)
+        streamlit.dataframe(back_from_function)
 except URLError as e:
     streamlit.error()
 streamlit.write('The user entered ', fruit_choice)
